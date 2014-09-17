@@ -114,8 +114,13 @@ NSInteger const LBYouTubePlayerExtractorErrorCodeNoJSONData   =    3;
         NSMutableString* streamURL = [NSMutableString stringWithString: [string substringWithRange:checkingResult.range]];
         [streamURL replaceOccurrencesOfString:@"\\\\u0026" withString:@"&" options:NSCaseInsensitiveSearch range:NSMakeRange(0, streamURL.length)];
         [streamURL replaceOccurrencesOfString:@"\\\\\\" withString:@"" options:NSCaseInsensitiveSearch range:NSMakeRange(0, streamURL.length)];
-                
-        return [NSURL URLWithString:streamURL];
+        
+        //sometimes the url is bad- check here that it is valid- otherwise we'll return nil and fill error
+        //which will cause fallback to article
+        NSURL *candidateURL =  [NSURL URLWithString:streamURL];
+        if (candidateURL && candidateURL.scheme && candidateURL.host) {
+            return candidateURL;
+        }
     }
     
     if (error) {
